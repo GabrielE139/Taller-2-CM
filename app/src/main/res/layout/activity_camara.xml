@@ -5,12 +5,12 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Camara">
+    tools:context=".Logica.Camara">
 
     <ImageView
         android:id="@+id/imageCamara"
-        android:layout_width="350dp"
-        android:layout_height="350dp"
+        android:layout_width="360dp"
+        android:layout_height="360dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="160dp"
         app:srcCompat="@drawable/camera" />

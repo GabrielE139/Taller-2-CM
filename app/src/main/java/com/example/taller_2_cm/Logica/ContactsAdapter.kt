@@ -1,4 +1,4 @@
-package com.example.taller_2_cm
+package com.example.taller_2_cm.Logica
 
 import android.content.Context
 import android.database.Cursor
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
 import android.widget.TextView
+import com.example.taller_2_cm.R
 
 class ContactsAdapter(context: Context?, c: Cursor?, flags: Int) : CursorAdapter(context, c, flags) {
     private val CONTACT_ID_INDEX = 0

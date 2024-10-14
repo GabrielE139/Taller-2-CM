@@ -1,4 +1,4 @@
-package com.example.taller_2_cm
+package com.example.taller_2_cm.Logica
 
 import android.Manifest
 import android.app.Activity
@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.taller_2_cm.Datos.Data
+import com.example.taller_2_cm.R
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -30,13 +31,14 @@ class Camara : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camara)
 
+        imageView = findViewById(R.id.imageCamara)
+
         val permisos = arrayOf( Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,  Manifest.permission.WRITE_EXTERNAL_STORAGE)
         val justificaciones = arrayOf( "Se necesita acceso a la cámara para tomar fotos",  "Se necesita acceso a la galería para seleccionar fotos",  "Se necesita acceso de escritura para guardar fotos" )
         val idCodes = arrayOf( Data.MY_PERMISSION_REQUEST_CAMERA,  Data.MY_PERMISSION_REQUEST_READ_EXTERNAL_STORAGE,  Data.MY_PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE )
 
         pedirPermisos(permisos, justificaciones, idCodes)
 
-        imageView = findViewById(R.id.imageCamara)
         val buttonGaleria = findViewById<Button>(R.id.buttonGaleria)
         val buttonCamara = findViewById<Button>(R.id.buttonCamara)
 
