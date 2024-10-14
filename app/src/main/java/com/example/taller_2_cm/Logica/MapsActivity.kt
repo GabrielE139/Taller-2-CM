@@ -1,12 +1,10 @@
-package com.example.taller_2_cm
+package com.example.taller_2_cm.Logica
 
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -15,16 +13,13 @@ import android.location.Geocoder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.taller_2_cm.Datos.Data
 import android.view.inputmethod.EditorInfo
-
-
+import com.example.taller_2_cm.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -32,25 +27,20 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.taller_2_cm.databinding.ActivityMapsBinding
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.CommonStatusCodes
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.Priority
-import com.google.android.gms.location.SettingsClient
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.tasks.Task
+import org.json.JSONObject
+import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -79,6 +69,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        deleteLocationJson()
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         mLocationRequest = createLocationRequest()
 
@@ -98,6 +90,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         if (distance >= 0.03) { // 0.03 km = 30 metros
                             lastLocation = newLatLng
                             setLocation()
+                            saveLocationToJson(newLatLng.latitude, newLatLng.longitude)
+
                         }
                     }
                 }
@@ -116,6 +110,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mGeocoder = Geocoder(baseContext)
         textPosition(mGeocoder)
+
+        binding.btnFollowRoute.setOnClickListener {
+            binding.btnFollowRoute.visibility = android.view.View.GONE
+            val intent = Intent(this, MapsOSM::class.java)
+            intent.putExtra("start_lat", positionMarker?.position?.latitude)
+            intent.putExtra("start_lng", positionMarker?.position?.longitude)
+            intent.putExtra("end_lat", textMarker?.position?.latitude)
+            intent.putExtra("end_lng", textMarker?.position?.longitude)
+            startActivity(intent)
+        }
 
     }
 
@@ -138,10 +142,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (mMap != null) {
                     if (event.values[0] < 5000) {
                         Log.i("MAPS", "DARK MAP " + event.values[0])
-                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(baseContext, R.raw.dark_mode))
+                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(baseContext,
+                            R.raw.dark_mode
+                        ))
                     } else {
                         Log.i("MAPS", "LIGHT MAP " + event.values[0])
-                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(baseContext, R.raw.default_mode))
+                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(baseContext,
+                            R.raw.default_mode
+                        ))
                     }
                 }
             }
@@ -162,13 +170,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             // Verifica si el mapa ha sido inicializado antes de usarlo
                             if (::mMap.isInitialized) {
 
-                                if (textMarker != null) {
-                                    textMarker?.position = position
-                                } else {
-                                    // Si no existe, crea un nuevo marcador
-                                    textMarker = mMap.addMarker(MarkerOptions().position(position).title("Estás aquí"))
-                                }
+                                textMarker?.remove()
+                                touchMarker?.remove()
 
+                                textMarker = mMap.addMarker(MarkerOptions().position(position).title(getPlaceName(position)))
+
+                                binding.btnFollowRoute.visibility = View.VISIBLE
                                 // Mueve la cámara a la nueva posición
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                             } else {
@@ -201,19 +208,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.uiSettings.isZoomControlsEnabled = true
 
         mMap.setOnMapLongClickListener { latLng ->
-            if (touchMarker != null) {
-                touchMarker?.position = latLng
-                touchMarker?.title = getPlaceName(latLng)
-            } else {
-                // Si no existe, crea un nuevo marcador
-                touchMarker = mMap.addMarker(MarkerOptions().position(latLng).title(getPlaceName(latLng)))
-            }
+
+            textMarker?.remove()
+            touchMarker?.remove()
+            touchMarker = mMap.addMarker(MarkerOptions().position(latLng).title(getPlaceName(latLng)))
 
             var distancia = distance(latLng.latitude, latLng.longitude, latitud, longitud)
             Toast.makeText(this, "La distancia es ${distancia}km", Toast.LENGTH_SHORT).show()
             // Mueve la cámara a la nueva posición
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-            mMap.addMarker(MarkerOptions().position(latLng))
         }
 
     }
@@ -273,6 +276,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (::mMap.isInitialized) {
                     // Crea una nueva posición
                     val nuevaPosicion = LatLng(latitud, longitud)
+
+                    textMarker?.remove()
+                    touchMarker?.remove()
 
                     if (positionMarker != null) {
                         positionMarker?.position = nuevaPosicion
@@ -343,6 +349,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun saveLocationToJson(lat: Double, lon: Double) {
+        val jsonObject = JSONObject()
+        jsonObject.put("latitude", lat)
+        jsonObject.put("longitude", lon)
 
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val currentDateTime = dateFormat.format(Date())
+        jsonObject.put("timestamp", currentDateTime)
+
+        val jsonString = jsonObject.toString()
+        val file = File(filesDir, "locations.json")
+
+        file.parentFile?.mkdirs()
+        file.appendText("$jsonString\n")
+    }
+
+    private fun deleteLocationJson() {
+        val file = File(filesDir, "locations.json")
+        if (file.exists()) {
+            file.delete()
+        }
+        file.appendText("\n")
+    }
 
 }

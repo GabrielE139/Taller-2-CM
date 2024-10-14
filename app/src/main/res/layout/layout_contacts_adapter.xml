@@ -9,7 +9,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/contacts"
+        android:src="@drawable/contact"
         android:scaleType="fitXY"/>
 
     <TextView

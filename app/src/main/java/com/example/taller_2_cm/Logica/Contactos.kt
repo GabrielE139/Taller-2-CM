@@ -1,4 +1,4 @@
-package com.example.taller_2_cm
+package com.example.taller_2_cm.Logica
 
 import android.Manifest
 import android.app.Activity
@@ -7,14 +7,12 @@ import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.taller_2_cm.Datos.Data
+import com.example.taller_2_cm.R
 
 class Contactos : AppCompatActivity() {
 
@@ -67,7 +65,7 @@ class Contactos : AppCompatActivity() {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
             when (requestCode) {
-                Data.Companion.MY_PERMISSION_REQUEST_READ_CONTACTS -> {
+                Data.MY_PERMISSION_REQUEST_READ_CONTACTS -> {
                     if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                         Toast.makeText(this, "permiso concedido", Toast.LENGTH_SHORT).show()
                         initView()
@@ -83,4 +81,3 @@ class Contactos : AppCompatActivity() {
             }
         }
     }
-}

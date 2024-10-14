@@ -5,8 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
+    tools:context=".Logica.MainActivity">
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -15,7 +14,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/contacts"
-        android:scaleType="fitXY"/>
+        android:scaleType="fitXY"
+        android:background="@null"/>
 
     <ImageButton
         android:id="@+id/imageButton2"
@@ -25,7 +25,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/camera"
-        android:scaleType="fitXY"/>
+        android:scaleType="fitXY"
+        android:background="@null"/>
 
     <ImageButton
         android:id="@+id/imageButton3"
@@ -35,13 +36,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:src="@drawable/osmap"
-        android:scaleType="fitXY"/>
-
-
-
-
-
-
-
+        android:scaleType="fitXY"
+        android:background="@null"/>
 
 </RelativeLayout>

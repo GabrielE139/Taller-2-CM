@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Camara">
+    tools:context=".Logica.Camara">
 
 
 
@@ -16,7 +16,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MapsActivity" />
+            tools:context=".Logica.MapsActivity" />
 
     <EditText
         android:id="@+id/texto"
@@ -30,5 +30,15 @@
         android:inputType="text"
         android:imeOptions="actionSend"
         />
+
+    <Button
+        android:id="@+id/btn_follow_route"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Seguir Ruta"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="50dp"
+        android:visibility="gone"/>
 
 </FrameLayout>
